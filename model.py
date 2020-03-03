@@ -35,22 +35,23 @@ class ConvBlock(nn.Module):
         super().__init__()
         self.ada = AdaIn(n_channels, n_channels)
         self.lrelu = nn.LeakyReLU(0.2)
-        self.conv = nn.Conv2d(n_channels, n_channels, 3, padding=1)
+        self.conv1 = nn.Conv2d(n_channels, n_channels, 3, padding=1)
+        self.conv2 = nn.Conv2d(n_channels, n_channels, 3, padding=1)
         # a lot of the entries in MNIST-Fashion are identically zero, relu gives more latituted to achieve this
         self.relu = nn.ReLU()
 
     def forward(self, input, style):
-        out = self.conv(input)
+        out = self.conv1(input)
         out = self.ada(input, style)
         out = self.lrelu(out)
-        out = self.conv(out)
+        out = self.conv2(out)
         out = self.ada(input, style)
         out = self.relu(out)
         return out
 
 
 class Generator(nn.Module):
-    def __init__(self, latent_dimension=512, mlp_layers=8):
+    def __init__(self, latent_dimension=128, mlp_layers=8):
         super().__init__()
         self.latent_decoder = StyleDecoder(latent_dimension, mlp_layers)
         self.initial = Constant(latent_dimension)
